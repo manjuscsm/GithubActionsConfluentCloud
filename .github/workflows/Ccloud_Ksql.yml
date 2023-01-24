@@ -18,6 +18,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y apt-transport-https
         sudo curl -L --http1.1 https://cnfl.io/ccloud-cli | sudo sh -s -- -b /usr/local/bin
+        cd /usr/local/bin
         ls
 
     - name: Login to Confluent Cloud
