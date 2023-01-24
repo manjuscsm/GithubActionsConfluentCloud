@@ -3,6 +3,7 @@ name: KSQL DB Query
 on:
   push:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,10 +17,7 @@ jobs:
       run: |
         apt-get update
         apt-get install -y apt-transport-https
-        echo "deb https://dl.bintray.com/confluent-oss-deb stable main" | tee /etc/apt/sources.list.d/confluent-oss.list
-        wget -qO - https://packages.confluent.io/deb/confluent-oss-keyring/confluent-oss-keyring.gpg | apt-key add -
-        apt-get update
-        apt-get install -y confluent-cloud-cli
+        curl -L --http1.1 https://cnfl.io/ccloud-cli | sh -s -- -b /usr/local/bin
 
     - name: Login to Confluent Cloud
       run: ccloud login --apikey ${{ secrets.CONFLUENT_CLOUD_API_KEY }} --apisecret ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
