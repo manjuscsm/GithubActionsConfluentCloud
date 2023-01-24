@@ -1,0 +1,31 @@
+name: KSQL DB Query
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Confluent Cloud CLI
+      run: |
+        apt-get update
+        apt-get install -y apt-transport-https
+        echo "deb https://dl.bintray.com/confluent-oss-deb stable main" | tee /etc/apt/sources.list.d/confluent-oss.list
+        wget -qO - https://packages.confluent.io/deb/confluent-oss-keyring/confluent-oss-keyring.gpg | apt-key add -
+        apt-get update
+        apt-get install -y confluent-cloud-cli
+
+    - name: Login to Confluent Cloud
+      run: ccloud login --apikey ${{ secrets.CONFLUENT_CLOUD_API_KEY }} --apisecret ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
+
+    - name: Login to KSQL DB
+      run: ccloud ksql-cluster endpoint --cluster-id my_cluster_id | xargs ccloud ksql-cluster ksql-app-auth-add ${{ secrets.CONFLUENT_CLOUD_API_KEY }} ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
+
+    - name: Run KSQL Query
+      run: ccloud ksql http://endpoint:8088 --query "SELECT * FROM my_stream;"
